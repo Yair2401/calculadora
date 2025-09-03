@@ -52,7 +52,7 @@
       margin-top: 20px;
       padding: 15px;
       border-radius: 10px;
-      text-align: center;
+      text-align: left;
       font-size: 16px;
       font-weight: bold;
     }
@@ -73,13 +73,13 @@
     <h2>📊 Calculadora Dropshipping</h2>
 
     <label for="precioBodega">Precio de bodega (COP)</label>
-    <input type="number" id="precioBodega" placeholder="Ej: 45000">
+    <input type="number" id="precioBodega" placeholder="Ej: 55000">
 
     <label for="precioVenta">Precio Dropshipper / Venta (COP)</label>
-    <input type="number" id="precioVenta" placeholder="Ej: 119900">
+    <input type="number" id="precioVenta" placeholder="Ej: 85900">
 
     <label for="costoEnvio">Costo por envío (COP)</label>
-    <input type="number" id="costoEnvio" placeholder="Ej: 10000">
+    <input type="number" id="costoEnvio" placeholder="Ej: 23000">
 
     <label for="costoPublicidad">Gasto en publicidad por día (COP)</label>
     <input type="number" id="costoPublicidad" placeholder="Ej: 20000">
@@ -94,7 +94,7 @@
     </select>
 
     <label for="ventas">Cantidad de ventas</label>
-    <input type="number" id="ventas" placeholder="Ej: 10">
+    <input type="number" id="ventas" placeholder="Ej: 20">
 
     <button onclick="calcular()">Calcular</button>
 
@@ -128,22 +128,22 @@
         resultadoDiv.className = "resultado positivo";
         resultadoDiv.innerHTML = `
           ✅ Campaña efectiva <br><br>
-          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
           📦 Precio de bodega: ${precioBodega.toLocaleString()} COP <br>
           🛒 Precio Dropshipper: ${precioVenta.toLocaleString()} COP <br>
           🚚 Costo por envío: ${costoEnvio.toLocaleString()} COP <br>
-          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br>
-          📈 Retorno de inversión (ROI): +${roi.toLocaleString()} COP
+          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br><br>
+          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
+          📊 Retorno de inversión (ROI): +${roi.toLocaleString()} COP
         `;
       } else {
         resultadoDiv.className = "resultado negativo";
         resultadoDiv.innerHTML = `
           ⚠️ Alerta: Campaña con pérdidas <br><br>
-          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
           📦 Precio de bodega: ${precioBodega.toLocaleString()} COP <br>
           🛒 Precio Dropshipper: ${precioVenta.toLocaleString()} COP <br>
           🚚 Costo por envío: ${costoEnvio.toLocaleString()} COP <br>
-          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br>
+          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br><br>
+          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
           📉 Retorno de inversión (ROI): ${roi.toLocaleString()} COP
         `;
       }
