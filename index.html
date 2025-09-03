@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -21,7 +19,7 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      width: 400px;
+      width: 420px;
     }
     h2 {
       text-align: center;
@@ -74,16 +72,16 @@
   <div class="container">
     <h2>📊 Calculadora Dropshipping</h2>
 
-    <label for="costoBodega">Costo en bodega (COP)</label>
-    <input type="number" id="costoBodega" placeholder="Ej: 45000">
+    <label for="precioBodega">Precio de bodega (COP)</label>
+    <input type="number" id="precioBodega" placeholder="Ej: 45000">
 
-    <label for="precioVenta">Precio de venta (COP)</label>
+    <label for="precioVenta">Precio Dropshipper / Venta (COP)</label>
     <input type="number" id="precioVenta" placeholder="Ej: 119900">
 
-    <label for="costoEnvio">Costo de envío (COP)</label>
+    <label for="costoEnvio">Costo por envío (COP)</label>
     <input type="number" id="costoEnvio" placeholder="Ej: 10000">
 
-    <label for="costoPublicidad">Costo de publicidad (COP)</label>
+    <label for="costoPublicidad">Gasto en publicidad por día (COP)</label>
     <input type="number" id="costoPublicidad" placeholder="Ej: 20000">
 
     <label for="rango">Rango de inversión en publicidad</label>
@@ -95,40 +93,61 @@
       <option value="30">Últimos 30 días</option>
     </select>
 
-    <button onclick="calcular()">Calcular ROI</button>
+    <label for="ventas">Cantidad de ventas</label>
+    <input type="number" id="ventas" placeholder="Ej: 10">
+
+    <button onclick="calcular()">Calcular</button>
 
     <div id="resultado" class="resultado"></div>
   </div>
 
   <script>
     function calcular() {
-      const costoBodega = parseFloat(document.getElementById("costoBodega").value) || 0;
+      const precioBodega = parseFloat(document.getElementById("precioBodega").value) || 0;
       const precioVenta = parseFloat(document.getElementById("precioVenta").value) || 0;
       const costoEnvio = parseFloat(document.getElementById("costoEnvio").value) || 0;
       const costoPublicidad = parseFloat(document.getElementById("costoPublicidad").value) || 0;
       const rango = parseInt(document.getElementById("rango").value);
+      const ventas = parseInt(document.getElementById("ventas").value) || 0;
 
-      // Se multiplica el costo de publicidad por el rango seleccionado
-      const inversionPublicidad = costoPublicidad * rango;
+      // Gasto total en publicidad según rango
+      const gastoPublicidad = costoPublicidad * rango;
 
-      // Ganancia bruta por unidad
-      const gananciaUnidad = precioVenta - (costoBodega + costoEnvio);
+      // Ganancia por unidad (venta menos costos unitarios)
+      const gananciaUnidad = precioVenta - (precioBodega + costoEnvio);
 
-      // ROI
-      const roi = gananciaUnidad - inversionPublicidad;
+      // Ganancia total
+      const gananciaTotal = gananciaUnidad * ventas;
+
+      // ROI = Ganancia total - Gasto en publicidad
+      const roi = gananciaTotal - gastoPublicidad;
 
       const resultadoDiv = document.getElementById("resultado");
 
       if (roi > 0) {
         resultadoDiv.className = "resultado positivo";
-        resultadoDiv.innerHTML = `✅ Campaña efectiva <br> ROI: +${roi.toLocaleString()} COP`;
+        resultadoDiv.innerHTML = `
+          ✅ Campaña efectiva <br><br>
+          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
+          📦 Precio de bodega: ${precioBodega.toLocaleString()} COP <br>
+          🛒 Precio Dropshipper: ${precioVenta.toLocaleString()} COP <br>
+          🚚 Costo por envío: ${costoEnvio.toLocaleString()} COP <br>
+          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br>
+          📈 Retorno de inversión (ROI): +${roi.toLocaleString()} COP
+        `;
       } else {
         resultadoDiv.className = "resultado negativo";
-        resultadoDiv.innerHTML = `⚠️ Alerta: Campaña con pérdidas <br> ROI: ${roi.toLocaleString()} COP`;
+        resultadoDiv.innerHTML = `
+          ⚠️ Alerta: Campaña con pérdidas <br><br>
+          💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP <br>
+          📦 Precio de bodega: ${precioBodega.toLocaleString()} COP <br>
+          🛒 Precio Dropshipper: ${precioVenta.toLocaleString()} COP <br>
+          🚚 Costo por envío: ${costoEnvio.toLocaleString()} COP <br>
+          📢 Gasto en publicidad: ${gastoPublicidad.toLocaleString()} COP <br>
+          📉 Retorno de inversión (ROI): ${roi.toLocaleString()} COP
+        `;
       }
     }
   </script>
 </body>
 </html>
-
-
