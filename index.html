@@ -3,122 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Negocio</title>
+  <title>Calculadora de Campañas</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
-    .container { max-width: 450px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    h2 { text-align: center; margin-bottom: 20px; }
-    label { font-weight: bold; display: block; margin-top: 12px; }
-    input, select, button { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 5px; }
-    button { background: #007bff; color: white; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    button:hover { background: #0056b3; }
-    .result { margin-top: 20px; padding: 15px; border-radius: 10px; }
-    .positivo { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .negativo { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .results p {
+      margin: 8px 0;
+    }
+    .positivo {
+      color: green;
+      font-weight: bold;
+    }
+    .negativo {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <h2>📊 Calculadora de Negocio</h2>
+    <h2>📊 Calculadora de Campañas</h2>
+    
+    <label for="gasto">💰 Gasto en Ads ($)</label>
+    <input type="number" id="gasto" placeholder="Ej: 225717">
 
-    <label for="tipo">Tipo de calculadora</label>
-    <select id="tipo" onchange="toggleCampos()">
-      <option value="dropshipping">Dropshipping</option>
-      <option value="tienda">Tienda propia</option>
-    </select>
+    <label for="conversaciones">💬 Conversaciones Iniciadas</label>
+    <input type="number" id="conversaciones" placeholder="Ej: 570">
 
-    <div id="campoBodega">
-      <label for="bodega">Precio de bodega (COP)</label>
-      <input type="number" id="bodega" placeholder="Ej: 55000">
-    </div>
+    <label for="ventas">🛒 Número de Ventas (clientes)</label>
+    <input type="number" id="ventas" placeholder="Ej: 6">
 
-    <div id="campoProducto" style="display:none;">
-      <label for="producto">Costo del producto (COP)</label>
-      <input type="number" id="producto" placeholder="Ej: 35000">
-    </div>
+    <label for="pares">👟 Unidades Vendidas</label>
+    <input type="number" id="pares" placeholder="Ej: 7">
 
-    <label for="venta">Precio de venta (COP)</label>
-    <input type="number" id="venta" placeholder="Ej: 85900">
+    <label for="precio">💵 Precio por Unidad ($)</label>
+    <input type="number" id="precio" placeholder="Ej: 169900">
 
-    <div id="campoEnvio">
-      <label for="envio">Costo por envío (COP)</label>
-      <input type="number" id="envio" placeholder="Ej: 23000">
-    </div>
-
-    <label for="publicidad">Gasto en publicidad por día (COP)</label>
-    <input type="number" id="publicidad" placeholder="Ej: 20000">
-
-    <label for="rango">Rango de inversión en publicidad</label>
-    <select id="rango">
-      <option value="1">Hoy</option>
-      <option value="1">Ayer</option>
-      <option value="7">Últimos 7 días</option>
-      <option value="15">Últimos 15 días</option>
-      <option value="30">Últimos 30 días</option>
-    </select>
-
-    <label for="ventas">Cantidad de ventas</label>
-    <input type="number" id="ventas" placeholder="Ej: 20">
+    <label for="bodega">🏷️ Precio de Bodega ($)</label>
+    <input type="number" id="bodega" placeholder="Ej: 80000">
 
     <button onclick="calcular()">Calcular</button>
 
-    <div id="resultado"></div>
+    <div class="results" id="resultados"></div>
   </div>
 
   <script>
-    function toggleCampos() {
-      const tipo = document.getElementById("tipo").value;
-      document.getElementById("campoBodega").style.display = (tipo === "dropshipping") ? "block" : "none";
-      document.getElementById("campoProducto").style.display = (tipo === "tienda") ? "block" : "none";
-      document.getElementById("campoEnvio").style.display = (tipo === "dropshipping") ? "block" : "none";
-    }
-
     function calcular() {
-      const tipo = document.getElementById("tipo").value;
-      const precioVenta = parseFloat(document.getElementById("venta").value) || 0;
-      const publicidadDia = parseFloat(document.getElementById("publicidad").value) || 0;
-      const rango = parseInt(document.getElementById("rango").value);
-      const ventas = parseInt(document.getElementById("ventas").value) || 0;
+      let gasto = parseFloat(document.getElementById("gasto").value);
+      let conversaciones = parseInt(document.getElementById("conversaciones").value);
+      let ventas = parseInt(document.getElementById("ventas").value);
+      let pares = parseInt(document.getElementById("pares").value);
+      let precio = parseFloat(document.getElementById("precio").value);
+      let bodega = parseFloat(document.getElementById("bodega").value);
 
-      let costoProducto = 0, costoEnvio = 0;
+      if (isNaN(gasto) || isNaN(conversaciones) || isNaN(ventas) || isNaN(pares) || isNaN(precio) || isNaN(bodega)) {
+        document.getElementById("resultados").innerHTML = "<p style='color:red;'>⚠️ Por favor completa todos los campos.</p>";
+        return;
+      }
 
-      if (tipo === "dropshipping") {
-        costoProducto = parseFloat(document.getElementById("bodega").value) || 0;
-        costoEnvio = parseFloat(document.getElementById("envio").value) || 0;
+      let costoConversacion = gasto / conversaciones;
+      let conversion = (ventas / conversaciones) * 100;
+      let ingresos = pares * precio;
+      let costoVenta = gasto / ventas;
+      let roas = ingresos / gasto;
+      let costoTotal = gasto + (pares * bodega);
+      let utilidad = ingresos - costoTotal;
+
+      let mensaje = "";
+      let consejo = "";
+
+      if (utilidad < 0) {
+        mensaje = `<p class="negativo">⚠️ Estás en pérdida. Urgente: revisa precio de venta o reduce gasto en ads.</p>`;
+        consejo = "👉 Revisa segmentación, prueba creativos diferentes y ajusta el precio o la inversión.";
       } else {
-        costoProducto = parseFloat(document.getElementById("producto").value) || 0;
+        mensaje = `<p class="positivo">✅ Ya estás en un ROAS muy saludable y con utilidad positiva.</p>`;
+        consejo = "👉 Escala la campaña poco a poco, aumenta presupuesto en los anuncios que mejor convierten.";
       }
 
-      const gastoPublicidad = publicidadDia * rango;
-      const ingresoTotal = precioVenta * ventas;
-      const costosTotales = (costoProducto + costoEnvio) * ventas + gastoPublicidad;
-      const gananciaTotal = ingresoTotal - costosTotales;
-      const ROI = ingresoTotal - ((costoProducto + costoEnvio) * ventas);
-
-      let resultadoHTML = "";
-      if (gananciaTotal >= 0) {
-        resultadoHTML += `<div class="result positivo">✅ Campaña efectiva<br><br>`;
-      } else {
-        resultadoHTML += `<div class="result negativo">⚠️ Campaña en pérdida<br><br>`;
-      }
-
-      if (tipo === "dropshipping") {
-        resultadoHTML += `📦 Precio bodega: ${costoProducto.toLocaleString()} COP<br>`;
-      } else {
-        resultadoHTML += `📦 Costo producto: ${costoProducto.toLocaleString()} COP<br>`;
-      }
-      resultadoHTML += `🛒 Precio venta: ${precioVenta.toLocaleString()} COP<br>`;
-      if (tipo === "dropshipping") {
-        resultadoHTML += `🚚 Costo envío: ${costoEnvio.toLocaleString()} COP<br>`;
-      }
-      resultadoHTML += `📢 Gasto publicidad: ${gastoPublicidad.toLocaleString()} COP<br>`;
-      resultadoHTML += `📊 Retorno inversión (ROI): ${ROI.toLocaleString()} COP<br>`;
-      resultadoHTML += `💰 Ganancia total: ${gananciaTotal.toLocaleString()} COP</div>`;
-
-      document.getElementById("resultado").innerHTML = resultadoHTML;
+      document.getElementById("resultados").innerHTML = `
+        <h3>📈 Resultados:</h3>
+        <p><b>Costo por Conversación:</b> $${costoConversacion.toFixed(2)}</p>
+        <p><b>Tasa de Conversión:</b> ${conversion.toFixed(2)}%</p>
+        <p><b>Ingresos Totales:</b> $${ingresos.toLocaleString()}</p>
+        <p><b>Costo por Venta:</b> $${costoVenta.toFixed(2)}</p>
+        <p><b>Unidades Vendidas:</b> ${pares}</p>
+        <p><b>ROAS:</b> ${roas.toFixed(2)}x</p>
+        <p><b>Utilidad Neta:</b> $${utilidad.toLocaleString()}</p>
+        ${mensaje}
+        <p><b>Consejo:</b> ${consejo}</p>
+      `;
     }
   </script>
-
 </body>
 </html>
