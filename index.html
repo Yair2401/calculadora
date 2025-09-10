@@ -3,232 +3,191 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>📊 Calculadora de Campañas</title>
+  <title>Calculadora de Campañas</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
-      background: #f9f9f9;
+      background: #f5f5f5;
+      color: #333;
     }
     h2 {
       text-align: center;
-      color: #333;
+      margin-bottom: 20px;
     }
-    .form-container {
+    .container {
+      max-width: 900px;
+      margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 450px;
-      margin: auto;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
     }
     label {
-      display: block;
-      margin-top: 12px;
       font-weight: bold;
+      margin-top: 10px;
+      display: block;
     }
     input, select, button {
-      width: 100%;
       padding: 10px;
-      margin-top: 6px;
-      border-radius: 8px;
+      margin-top: 5px;
+      width: 100%;
       border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 14px;
     }
     button {
-      margin-top: 15px;
       background: #007bff;
       color: white;
-      border: none;
       cursor: pointer;
+      margin-top: 15px;
     }
     button:hover {
       background: #0056b3;
     }
-    .resultados {
-      background: #fff;
-      padding: 20px;
+    .results {
       margin-top: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
     }
-    .ok { color: green; font-weight: bold; }
-    .alerta { color: red; font-weight: bold; }
-    .medio { color: orange; font-weight: bold; }
-    small { color: #666; display: block; margin-bottom: 10px; }
-    canvas {
-      margin-top: 25px;
+    .results p {
+      margin: 8px 0;
     }
-    .semaforo {
+    .urgency {
+      font-weight: bold;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
       text-align: center;
-      margin-top: 15px;
     }
-    .luz {
-      display: inline-block;
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      margin: 0 5px;
-      background: #ccc;
-    }
-    .activo { box-shadow: 0 0 12px 4px rgba(0,0,0,0.3); }
-    .rojo { background: red; }
-    .amarillo { background: orange; }
-    .verde { background: green; }
+    .loss { background: #ffcccc; color: #b30000; }
+    .profit { background: #ccffcc; color: #006600; }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>📊 Calculadora de Resultados de Campañas</h2>
 
-  <h2>📊 Calculadora de Campañas</h2>
-
-  <div class="form-container">
-    <label for="tipo">⚙️ Tipo de Campaña</label>
-    <select id="tipo">
-      <option value="Bodega">Bodega</option>
-      <option value="Dropshipper">Dropshipper</option>
+    <label for="tipo">Selecciona el tipo de calculadora:</label>
+    <select id="tipo" onchange="mostrarCampos()">
+      <option value="bodega">Bodega</option>
+      <option value="dropshipping">Dropshipping</option>
     </select>
 
-    <label for="gasto">💰 Gasto en Ads ($)</label>
-    <input type="number" id="gasto" placeholder="Ej: 225717">
-
-    <label for="conversaciones">💬 Conversaciones Iniciadas</label>
-    <input type="number" id="conversaciones" placeholder="Ej: 570">
-
-    <label for="ventas">🛒 Número de Ventas</label>
-    <input type="number" id="ventas" placeholder="Ej: 6">
-
-    <label for="unidades">📦 Cantidad de Unidades Vendidas</label>
-    <input type="number" id="unidades" placeholder="Ej: 7">
-
-    <label for="precio">💵 Precio por Unidad ($)</label>
-    <input type="number" id="precio" placeholder="Ej: 169900">
-
-    <label for="costoProd">🏷️ Costo del Producto por Unidad ($)</label>
-    <input type="number" id="costoProd" placeholder="Ej: 80000">
-
+    <div id="inputs"></div>
     <button onclick="calcular()">Calcular</button>
+    <button onclick="descargarPDF()">Descargar PDF</button>
+
+    <div class="results" id="resultados"></div>
   </div>
 
-  <div class="resultados" id="resultados"></div>
-
-  <div class="semaforo">
-    <div id="rojo" class="luz rojo"></div>
-    <div id="amarillo" class="luz amarillo"></div>
-    <div id="verde" class="luz verde"></div>
-  </div>
-
-  <canvas id="grafico"></canvas>
-
-  <!-- Librería Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Librería para generar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
-    let chart; // referencia global al gráfico
+    function mostrarCampos() {
+      const tipo = document.getElementById("tipo").value;
+      const inputs = document.getElementById("inputs");
 
-    function formatoCOP(valor) {
-      return valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+      if (tipo === "bodega") {
+        inputs.innerHTML = `
+          <label>Precio de venta por unidad (COP):</label>
+          <input type="number" id="precio" placeholder="Ej: 142900">
+
+          <label>Costo por unidad (COP):</label>
+          <input type="number" id="costo" placeholder="Ej: 120000">
+
+          <label>Costo de bodega (COP):</label>
+          <input type="number" id="bodega" placeholder="Ej: 5000">
+
+          <label>Conversaciones:</label>
+          <input type="number" id="conversaciones" placeholder="Ej: 784">
+
+          <label>Ventas realizadas:</label>
+          <input type="number" id="ventas" placeholder="Ej: 6">
+
+          <label>Inversión publicitaria total (COP):</label>
+          <input type="number" id="inversion" placeholder="Ej: 1000000">
+        `;
+      } else {
+        inputs.innerHTML = `
+          <label>Precio de venta por unidad (COP):</label>
+          <input type="number" id="precio" placeholder="Ej: 142900">
+
+          <label>Costo del producto (COP):</label>
+          <input type="number" id="costo" placeholder="Ej: 120000">
+
+          <label>Costo de envío (COP):</label>
+          <input type="number" id="envio" placeholder="Ej: 10000">
+
+          <label>Costo de bodega (COP):</label>
+          <input type="number" id="bodega" placeholder="Ej: 5000">
+
+          <label>Conversaciones:</label>
+          <input type="number" id="conversaciones" placeholder="Ej: 784">
+
+          <label>Ventas realizadas:</label>
+          <input type="number" id="ventas" placeholder="Ej: 6">
+
+          <label>Inversión publicitaria total (COP):</label>
+          <input type="number" id="inversion" placeholder="Ej: 1000000">
+        `;
+      }
     }
 
     function calcular() {
-      let tipo = document.getElementById("tipo").value;
-      let gasto = parseFloat(document.getElementById("gasto").value) || 0;
-      let conversaciones = parseFloat(document.getElementById("conversaciones").value) || 0;
-      let ventas = parseFloat(document.getElementById("ventas").value) || 0;
-      let unidades = parseFloat(document.getElementById("unidades").value) || 0;
-      let precio = parseFloat(document.getElementById("precio").value) || 0;
-      let costoProd = parseFloat(document.getElementById("costoProd").value) || 0;
+      const tipo = document.getElementById("tipo").value;
+      const precio = parseFloat(document.getElementById("precio").value) || 0;
+      const costo = parseFloat(document.getElementById("costo").value) || 0;
+      const bodega = parseFloat(document.getElementById("bodega").value) || 0;
+      const envio = tipo === "dropshipping" ? parseFloat(document.getElementById("envio").value) || 0 : 0;
+      const conversaciones = parseFloat(document.getElementById("conversaciones").value) || 0;
+      const ventas = parseFloat(document.getElementById("ventas").value) || 0;
+      const inversion = parseFloat(document.getElementById("inversion").value) || 0;
 
-      let costoConversacion = conversaciones > 0 ? gasto / conversaciones : 0;
-      let tasaConversion = conversaciones > 0 ? (ventas / conversaciones) * 100 : 0;
-      let ingresos = unidades * precio;
-      let costoVenta = ventas > 0 ? gasto / ventas : 0;
-      let costoUnidad = unidades > 0 ? gasto / unidades : 0;
-      let roas = gasto > 0 ? ingresos / gasto : 0;
-      let utilidadNeta = ingresos - gasto - (unidades * costoProd);
+      const ingresosTotales = ventas * precio;
+      const costoUnitarioTotal = tipo === "dropshipping" ? (costo + envio + bodega) : (costo + bodega);
+      const gananciaUnitaria = precio - costoUnitarioTotal;
+      const gananciaTotal = gananciaUnitaria * ventas;
+      const costoPorVenta = ventas > 0 ? inversion / ventas : 0;
+      const tasaConversion = conversaciones > 0 ? (ventas / conversaciones) * 100 : 0;
+      const roi = inversion > 0 ? ((gananciaTotal / inversion) * 100) : 0;
 
-      let mensaje = "";
-      let consejo = "";
+      let resultadosHTML = `
+        <p><b>Ingresos Totales:</b> $${ingresosTotales.toLocaleString()} COP <br><small>Total de dinero recibido por todas las ventas.</small></p>
+        <p><b>Ganancia por Unidad:</b> $${gananciaUnitaria.toLocaleString()} COP <br><small>Utilidad neta por cada producto vendido.</small></p>
+        <p><b>Utilidad Neta Estimada:</b> $${gananciaTotal.toLocaleString()} COP <br><small>Ganancia total sumando todas las ventas.</small></p>
+        <p><b>Costo por Venta:</b> $${costoPorVenta.toLocaleString()} COP <br><small>Lo que costó conseguir cada cliente.</small></p>
+        <p><b>Tasa de Conversión:</b> ${tasaConversion.toFixed(2)}% <br><small>Porcentaje de conversaciones que terminaron en venta.</small></p>
+        <p><b>ROI:</b> ${roi.toFixed(2)}% <br><small>Retorno de inversión de tu campaña publicitaria.</small></p>
+        <p><b>Unidades Vendidas:</b> ${ventas} <br><small>Cantidad de productos vendidos en la campaña.</small></p>
+      `;
 
-      if (roas < 1) {
-        mensaje = `<span class="alerta">❌ Estás en pérdida, necesitas optimizar urgentemente.</span>`;
-        consejo = "Reduce costos en ads, mejora tu segmentación o ajusta el precio de venta.";
-        setSemaforo("rojo");
-      } else if (roas >= 1 && roas < 3) {
-        mensaje = `<span class="medio">⚠️ Estás positivo pero aún bajo en rentabilidad.</span>`;
-        consejo = "Prueba nuevas audiencias y optimiza el embudo de ventas para mejorar tu ROAS.";
-        setSemaforo("amarillo");
+      if (gananciaTotal <= 0) {
+        resultadosHTML += `<div class="urgency loss">⚠️ Estás en pérdida, revisa costos y optimiza la campaña.</div>`;
       } else {
-        mensaje = `<span class="ok">✅ ¡Ya estás en un ROAS muy saludable!</span>`;
-        consejo = "Escala la inversión poco a poco y duplica las audiencias que mejor convierten.";
-        setSemaforo("verde");
+        resultadosHTML += `<div class="urgency profit">✅ Estás en un ROI saludable, sigue optimizando para escalar.</div>`;
       }
 
-      let html = `<h3>📈 Resultados (${tipo}):</h3>`;
-      html += `<p><b>Costo por Conversación:</b> ${formatoCOP(costoConversacion)}<br>
-               <small>(Lo que pagaste en publicidad para que una persona te escribiera)</small></p>`;
-      html += `<p><b>Tasa de Conversión:</b> ${tasaConversion.toFixed(2)}%<br>
-               <small>(Porcentaje de conversaciones que se convirtieron en clientes)</small></p>`;
-      html += `<p><b>Ingresos Totales:</b> ${formatoCOP(ingresos)}<br>
-               <small>(Todo el dinero que entró por ventas en esta campaña)</small></p>`;
-      html += `<p><b>Costo por Venta:</b> ${formatoCOP(costoVenta)}<br>
-               <small>(Promedio gastado en publicidad para conseguir un cliente)</small></p>`;
-      html += `<p><b>Costo por Unidad Vendida:</b> ${formatoCOP(costoUnidad)}<br>
-               <small>(Publicidad invertida en promedio por cada producto vendido)</small></p>`;
-      html += `<p><b>ROAS:</b> ${roas.toFixed(2)}x<br>
-               <small>(Por cada $1 en publicidad, regresaron ${roas.toFixed(2)} en ventas)</small></p>`;
-      html += `<p><b>Unidades Vendidas:</b> ${unidades}<br>
-               <small>(Cantidad total de productos colocados en esta campaña)</small></p>`;
-      html += `<p><b>Utilidad Neta Estimada:</b> ${formatoCOP(utilidadNeta)}<br>
-               <small>(Ingresos – Gasto en Ads – Costos de producto)</small></p>`;
-      html += `<p>${mensaje}</p>`;
-      html += `<p>💡 <b>Consejo:</b> ${consejo}</p>`;
-
-      document.getElementById("resultados").innerHTML = html;
-
-      // Crear/actualizar gráfico
-      const ctx = document.getElementById('grafico').getContext('2d');
-      if (chart) chart.destroy(); // destruye gráfico anterior
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Gasto en Ads', 'Ingresos Totales', 'Utilidad Neta'],
-          datasets: [{
-            label: 'Pesos Colombianos',
-            data: [gasto, ingresos, utilidadNeta],
-            backgroundColor: ['#ff4d4d','#4CAF50','#007bff']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return formatoCOP(context.raw);
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              ticks: {
-                callback: function(value) { return formatoCOP(value); }
-              }
-            }
-          }
-        }
-      });
+      document.getElementById("resultados").innerHTML = resultadosHTML;
     }
 
-    // Control del semáforo
-    function setSemaforo(color) {
-      document.getElementById("rojo").classList.remove("activo");
-      document.getElementById("amarillo").classList.remove("activo");
-      document.getElementById("verde").classList.remove("activo");
-      document.getElementById(color).classList.add("activo");
+    function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const resultados = document.getElementById("resultados").innerText;
+
+      doc.setFontSize(14);
+      doc.text("Resumen de Resultados de la Campaña", 10, 10);
+      doc.setFontSize(12);
+      doc.text(resultados, 10, 20);
+
+      doc.save("resumen_campaña.pdf");
     }
+
+    mostrarCampos(); // Inicializa los campos al cargar
   </script>
-
 </body>
 </html>
