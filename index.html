@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Campañas</title>
+  <title>Calculadora de Campañas Avanzada</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    input {
+    select, input {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
@@ -38,7 +38,7 @@
     button {
       margin-top: 20px;
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #007bff;
       color: white;
       border: none;
@@ -72,24 +72,33 @@
 <body>
   <div class="container">
     <h2>📊 Calculadora de Campañas</h2>
-    
+
+    <label for="tipo">⚙️ Tipo de Campaña</label>
+    <select id="tipo" onchange="toggleProveedor()">
+      <option value="bodega">Bodega</option>
+      <option value="dropshipping">Dropshipping</option>
+    </select>
+
     <label for="gasto">💰 Gasto en Ads ($)</label>
     <input type="number" id="gasto" placeholder="Ej: 225717">
 
     <label for="conversaciones">💬 Conversaciones Iniciadas</label>
     <input type="number" id="conversaciones" placeholder="Ej: 570">
 
-    <label for="ventas">🛒 Número de Ventas (clientes)</label>
+    <label for="ventas">🛒 Número de Ventas</label>
     <input type="number" id="ventas" placeholder="Ej: 6">
 
-    <label for="pares">👟 Unidades Vendidas</label>
-    <input type="number" id="pares" placeholder="Ej: 7">
+    <label for="unidades">👟 Cantidad de Unidades Vendidas</label>
+    <input type="number" id="unidades" placeholder="Ej: 7">
 
     <label for="precio">💵 Precio por Unidad ($)</label>
     <input type="number" id="precio" placeholder="Ej: 169900">
 
-    <label for="bodega">🏷️ Precio de Bodega ($)</label>
-    <input type="number" id="bodega" placeholder="Ej: 80000">
+    <!-- Campo adicional solo para dropshipping -->
+    <div id="costoProveedorBox" style="display:none;">
+      <label for="costoProveedor">📦 Costo del Proveedor/Envío por Unidad ($)</label>
+      <input type="number" id="costoProveedor" placeholder="Ej: 80000">
+    </div>
 
     <button onclick="calcular()">Calcular</button>
 
@@ -97,49 +106,77 @@
   </div>
 
   <script>
+    function toggleProveedor() {
+      let tipo = document.getElementById("tipo").value;
+      let box = document.getElementById("costoProveedorBox");
+      box.style.display = (tipo === "dropshipping") ? "block" : "none";
+    }
+
     function calcular() {
+      let tipo = document.getElementById("tipo").value;
       let gasto = parseFloat(document.getElementById("gasto").value);
       let conversaciones = parseInt(document.getElementById("conversaciones").value);
       let ventas = parseInt(document.getElementById("ventas").value);
-      let pares = parseInt(document.getElementById("pares").value);
+      let unidades = parseInt(document.getElementById("unidades").value);
       let precio = parseFloat(document.getElementById("precio").value);
-      let bodega = parseFloat(document.getElementById("bodega").value);
+      let costoProveedor = (tipo === "dropshipping") ? parseFloat(document.getElementById("costoProveedor").value) : 0;
 
-      if (isNaN(gasto) || isNaN(conversaciones) || isNaN(ventas) || isNaN(pares) || isNaN(precio) || isNaN(bodega)) {
+      if (isNaN(gasto) || isNaN(conversaciones) || isNaN(ventas) || isNaN(unidades) || isNaN(precio) || (tipo === "dropshipping" && isNaN(costoProveedor))) {
         document.getElementById("resultados").innerHTML = "<p style='color:red;'>⚠️ Por favor completa todos los campos.</p>";
         return;
       }
 
       let costoConversacion = gasto / conversaciones;
       let conversion = (ventas / conversaciones) * 100;
-      let ingresos = pares * precio;
+      let ingresos = unidades * precio;
       let costoVenta = gasto / ventas;
+      let costoUnidad = gasto / unidades;
       let roas = ingresos / gasto;
-      let costoTotal = gasto + (pares * bodega);
-      let utilidad = ingresos - costoTotal;
+
+      // Si es dropshipping, calculamos utilidad neta y ROI real
+      let utilidadNeta = ingresos - (gasto + (unidades * costoProveedor));
+      let roiReal = utilidadNeta / gasto;
 
       let mensaje = "";
       let consejo = "";
 
-      if (utilidad < 0) {
-        mensaje = `<p class="negativo">⚠️ Estás en pérdida. Urgente: revisa precio de venta o reduce gasto en ads.</p>`;
-        consejo = "👉 Revisa segmentación, prueba creativos diferentes y ajusta el precio o la inversión.";
+      if (tipo === "dropshipping") {
+        if (utilidadNeta <= 0) {
+          mensaje = `<p class='negativo'>⚠️ Estás en pérdida, necesitas optimizar precios o negociar mejor con el proveedor.</p>`;
+          consejo = "Revisa el costo del proveedor y tus márgenes. Considera aumentar el precio de venta o mejorar tus cierres.";
+        } else if (roiReal < 1) {
+          mensaje = `<p class='negativo'>😬 Ganancia muy baja, corres riesgo si suben los costos.</p>`;
+          consejo = "Aplica remarketing y optimiza anuncios para aumentar tu tasa de conversión.";
+        } else {
+          mensaje = `<p class='positivo'>✅ ¡Ya estás en un negocio rentable con Dropshipping!</p>`;
+          consejo = "Escala inversión y busca proveedores más baratos para aumentar margen.";
+        }
       } else {
-        mensaje = `<p class="positivo">✅ Ya estás en un ROAS muy saludable y con utilidad positiva.</p>`;
-        consejo = "👉 Escala la campaña poco a poco, aumenta presupuesto en los anuncios que mejor convierten.";
+        if (roas < 1) {
+          mensaje = `<p class='negativo'>⚠️ Estás en pérdida, necesitas optimizar tu campaña urgentemente.</p>`;
+          consejo = "Reduce el costo por conversación optimizando segmentación o mejora tu cierre en WhatsApp.";
+        } else if (roas >= 1 && roas < 3) {
+          mensaje = `<p class='negativo'>😬 Apenas alcanzas un ROAS aceptable, hay riesgo de pérdidas si suben los costos.</p>`;
+          consejo = "Prueba remarketing, baja de precio estratégico o mejora creativos para subir conversión.";
+        } else {
+          mensaje = `<p class='positivo'>✅ ¡Ya estás en un ROAS muy saludable!</p>`;
+          consejo = "Escala la inversión poco a poco y duplica las audiencias que mejor convierten.";
+        }
       }
 
       document.getElementById("resultados").innerHTML = `
-        <h3>📈 Resultados:</h3>
+        <h3>📈 Resultados (${tipo.charAt(0).toUpperCase() + tipo.slice(1)}):</h3>
         <p><b>Costo por Conversación:</b> $${costoConversacion.toFixed(2)}</p>
         <p><b>Tasa de Conversión:</b> ${conversion.toFixed(2)}%</p>
         <p><b>Ingresos Totales:</b> $${ingresos.toLocaleString()}</p>
         <p><b>Costo por Venta:</b> $${costoVenta.toFixed(2)}</p>
-        <p><b>Unidades Vendidas:</b> ${pares}</p>
+        <p><b>Costo por Unidad Vendida:</b> $${costoUnidad.toFixed(2)}</p>
         <p><b>ROAS:</b> ${roas.toFixed(2)}x</p>
-        <p><b>Utilidad Neta:</b> $${utilidad.toLocaleString()}</p>
+        <p><b>Unidades Vendidas:</b> ${unidades}</p>
+        ${tipo === "dropshipping" ? `<p><b>Utilidad Neta:</b> $${utilidadNeta.toLocaleString()}</p>
+        <p><b>ROI Real:</b> ${roiReal.toFixed(2)}x</p>` : ""}
         ${mensaje}
-        <p><b>Consejo:</b> ${consejo}</p>
+        <p><b>💡 Consejo:</b> ${consejo}</p>
       `;
     }
   </script>
