@@ -54,10 +54,27 @@
     }
     .ok { color: green; font-weight: bold; }
     .alerta { color: red; font-weight: bold; }
+    .medio { color: orange; font-weight: bold; }
     small { color: #666; display: block; margin-bottom: 10px; }
     canvas {
       margin-top: 25px;
     }
+    .semaforo {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .luz {
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      margin: 0 5px;
+      background: #ccc;
+    }
+    .activo { box-shadow: 0 0 12px 4px rgba(0,0,0,0.3); }
+    .rojo { background: red; }
+    .amarillo { background: orange; }
+    .verde { background: green; }
   </style>
 </head>
 <body>
@@ -94,6 +111,12 @@
 
   <div class="resultados" id="resultados"></div>
 
+  <div class="semaforo">
+    <div id="rojo" class="luz rojo"></div>
+    <div id="amarillo" class="luz amarillo"></div>
+    <div id="verde" class="luz verde"></div>
+  </div>
+
   <canvas id="grafico"></canvas>
 
   <!-- Librería Chart.js -->
@@ -129,12 +152,15 @@
       if (roas < 1) {
         mensaje = `<span class="alerta">❌ Estás en pérdida, necesitas optimizar urgentemente.</span>`;
         consejo = "Reduce costos en ads, mejora tu segmentación o ajusta el precio de venta.";
+        setSemaforo("rojo");
       } else if (roas >= 1 && roas < 3) {
-        mensaje = `<span class="alerta">⚠️ Estás positivo pero aún bajo en rentabilidad.</span>`;
+        mensaje = `<span class="medio">⚠️ Estás positivo pero aún bajo en rentabilidad.</span>`;
         consejo = "Prueba nuevas audiencias y optimiza el embudo de ventas para mejorar tu ROAS.";
+        setSemaforo("amarillo");
       } else {
         mensaje = `<span class="ok">✅ ¡Ya estás en un ROAS muy saludable!</span>`;
         consejo = "Escala la inversión poco a poco y duplica las audiencias que mejor convierten.";
+        setSemaforo("verde");
       }
 
       let html = `<h3>📈 Resultados (${tipo}):</h3>`;
@@ -193,6 +219,14 @@
           }
         }
       });
+    }
+
+    // Control del semáforo
+    function setSemaforo(color) {
+      document.getElementById("rojo").classList.remove("activo");
+      document.getElementById("amarillo").classList.remove("activo");
+      document.getElementById("verde").classList.remove("activo");
+      document.getElementById(color).classList.add("activo");
     }
   </script>
 
