@@ -55,9 +55,6 @@
     .ok { color: green; font-weight: bold; }
     .alerta { color: red; font-weight: bold; }
     small { color: #666; display: block; margin-bottom: 10px; }
-    canvas {
-      margin-top: 25px;
-    }
   </style>
 </head>
 <body>
@@ -89,19 +86,15 @@
     <label for="costoProd">🏷️ Costo del Producto por Unidad ($)</label>
     <input type="number" id="costoProd" placeholder="Ej: 80000">
 
+    <label for="encargado">💼 Pago al Encargado ($)</label>
+    <input type="number" id="encargado" placeholder="Ej: 100000">
+
     <button onclick="calcular()">Calcular</button>
   </div>
 
   <div class="resultados" id="resultados"></div>
 
-  <canvas id="grafico"></canvas>
-
-  <!-- Librería Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
-    let chart; // referencia global al gráfico
-
     function formatoCOP(valor) {
       return valor.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
     }
@@ -114,6 +107,7 @@
       let unidades = parseFloat(document.getElementById("unidades").value) || 0;
       let precio = parseFloat(document.getElementById("precio").value) || 0;
       let costoProd = parseFloat(document.getElementById("costoProd").value) || 0;
+      let encargado = parseFloat(document.getElementById("encargado").value) || 0;
 
       let costoConversacion = conversaciones > 0 ? gasto / conversaciones : 0;
       let tasaConversion = conversaciones > 0 ? (ventas / conversaciones) * 100 : 0;
@@ -121,7 +115,9 @@
       let costoVenta = ventas > 0 ? gasto / ventas : 0;
       let costoUnidad = unidades > 0 ? gasto / unidades : 0;
       let roas = gasto > 0 ? ingresos / gasto : 0;
-      let utilidadNeta = ingresos - gasto - (unidades * costoProd);
+
+      // ahora también restamos el pago al encargado
+      let utilidadNeta = ingresos - gasto - (unidades * costoProd) - encargado;
 
       let mensaje = "";
       let consejo = "";
@@ -153,46 +149,11 @@
       html += `<p><b>Unidades Vendidas:</b> ${unidades}<br>
                <small>(Cantidad total de productos colocados en esta campaña)</small></p>`;
       html += `<p><b>Utilidad Neta Estimada:</b> ${formatoCOP(utilidadNeta)}<br>
-               <small>(Ingresos – Gasto en Ads – Costos de producto)</small></p>`;
+               <small>(Ingresos – Gasto en Ads – Costos de producto – Pago al encargado)</small></p>`;
       html += `<p>${mensaje}</p>`;
       html += `<p>💡 <b>Consejo:</b> ${consejo}</p>`;
 
       document.getElementById("resultados").innerHTML = html;
-
-      // Crear/actualizar gráfico
-      const ctx = document.getElementById('grafico').getContext('2d');
-      if (chart) chart.destroy(); // destruye gráfico anterior
-      chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Gasto en Ads', 'Ingresos Totales', 'Utilidad Neta'],
-          datasets: [{
-            label: 'Pesos Colombianos',
-            data: [gasto, ingresos, utilidadNeta],
-            backgroundColor: ['#ff4d4d','#4CAF50','#007bff']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return formatoCOP(context.raw);
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              ticks: {
-                callback: function(value) { return formatoCOP(value); }
-              }
-            }
-          }
-        }
-      });
     }
   </script>
 
